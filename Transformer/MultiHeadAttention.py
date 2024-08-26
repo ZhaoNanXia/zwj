@@ -4,42 +4,46 @@ import torch.nn as nn
 
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, num_head, dim, dk, dv, dropout=0.0):
+    def __init__(self, num_heads, emb_dim, dropout=0.0):
         super().__init__()
-        self.num_head = num_head
-        self.dim = dim
-        self.dk = dk
-        self.dv = dv
-
-        self.q = nn.Linear(dim, dk)
-        self.k = nn.Linear(dim, dk)
-        self.v = nn.Linear(dim, dv)
-        self.scale = 1 / math.sqrt(dim // num_head)
-        self.fc = nn.Linear(num_head * dv, dim)
+        self.num_heads = num_heads
+        head_dim = emb_dim // num_heads
+        self.scale = head_dim ** -0.5
+        # 计算qkv的转移矩阵
+        self.qkv = nn.Linear(emb_dim, emb_dim * 3)
+        # 最终的线性层
+        self.fc = nn.Linear(emb_dim, emb_dim)
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
-        batch_size, num_token, dim_in = x.shape
-        dk = self.dim // self.num_head
-        dv = self.dim // self.num_head
-        q = self.q(x).reshape(batch_size, num_token, self.num_head, dk).transpose(1, 2)
-        k = self.k(x).reshape(batch_size, num_token, self.num_head, dk).transpose(1, 2)
-        v = self.v(x).reshape(batch_size, num_token, self.num_head, dv).transpose(1, 2)
+        batch_size, num_token, dim_in = x.shape  # [b, n, c]
+        print(f'batch_size: {batch_size}, num_token: {num_token}, dim_in: {dim_in}')
 
-        attn = torch.matmul(q, k.transpose(2, 3)) * self.scale
+        qkv = self.qkv(x).reshape(batch_size, num_token, 3, self.num_heads,
+                                  dim_in // self.num_heads).permute(2, 0, 3, 1, 4)
+        # [b, n, c] ——> [b, n, 3 * c] ——> [b, n, 3, num_heads, head_dim] ——> [3, b, num_heads, n, head_dim]
+        print(f'qkv.shape: {qkv.shape}')
+        q, k, v = qkv[0], qkv[1], qkv[2]
+        # [b, num_heads, n, head_dim]
+        attn_score = torch.matmul(q, k.transpose(3, 2)) * self.scale
+        # [b, num_heads, n, head_dim] * [b, num_heads, head_dim, n] ——> [b, num_heads, n, n]
+        attn_score = attn_score.softmax(dim=-1)
+        print('attn_score.shape:', attn_score.shape)
 
-        attn = attn.softmax(dim=-1)
+        attn_weight = torch.matmul(attn_score, v).transpose(1, 2).reshape(batch_size, num_token, dim_in)
+        # [b, num_heads, n, n] *  [b, num_heads, n, head_dim] ——> [b, num_heads, n, head_dim]
+        # ——> [b, n, num_heads, head_dim] ——> [b, n, dim_in]
+        print('attn_weight.shape:', attn_weight.shape)
 
-        attn_score = torch.matmul(attn, v)
+        output = self.fc(attn_weight)
 
-        attn_score = attn_score.transpose(1, 2).reshape(batch_size, num_token, self.dim)
-
-        output = self.fc(attn_score)
         return output
 
 
+# 输入：batch_size为1,token数为4,每个token的维度为2
 input_data = torch.randn(1, 4, 2)
-model = MultiHeadAttention(num_head=2, dim=2, dk=2, dv=3)
+print('input_data:', input_data)
+model = MultiHeadAttention(num_heads=2, emb_dim=2)
 final_output = model(input_data)
 print(final_output)
 
