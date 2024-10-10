@@ -46,6 +46,3 @@ print('input_data:', input_data)
 model = MultiHeadAttention(num_heads=2, emb_dim=2)
 final_output = model(input_data)
 print(final_output)
-
-
-
