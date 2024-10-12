@@ -101,14 +101,68 @@ class SortAlgorithm:
             nums[pos] = current_value
         return nums
 
+    def heapify(self, nums, n, i):
+        """ 堆排序辅助函数：根据数组、数组长度和当前索引构建大根堆 """
+        root = i
+        left = 2 * i + 1
+        right = 2 * i + 2
+        # 如果左子节点值大于根节点值
+        if left < n and nums[left] > nums[root]:
+            root = left
+        # 如果右子节点值大于跟节点值
+        if right < n and nums[right] > nums[root]:
+            root = right
 
-lists = [1, 4, 2, 7, 5, 6]
+        if root != i:
+            nums[i], nums[root] = nums[root], nums[i]
+            # 递归地调整后续受影响的子树
+            self.heapify(nums, n, root)
+
+    def heap_sort(self, nums):
+        """ 堆排序：利用堆这种数据结构进行排序，构建大根堆 """
+        n = len(nums)
+        # 构建大根堆：从最后一个非叶子节点的索引开始，也就是n//2-1
+        for i in range(n // 2 - 1, -1, -1):
+            self.heapify(nums, n, i)
+        # 从根节点开始逐个提取最大值，移动到末尾
+        for i in range(n - 1, 0, -1):
+            nums[i], nums[0] = nums[0], nums[i]
+            self.heapify(nums, i, 0)
+
+        return nums
+
+    @staticmethod
+    def bucket_sort(nums):
+        """ 桶排序：将数据分到多个桶中进行排序再合并"""
+        if not nums:
+            return nums
+        n = len(nums)
+        max_value, min_value = max(nums), min(nums)
+        bucket_size = (max_value - min_value) // n + 1  # 计算桶的数量
+        buckets = [[] for _ in range(bucket_size)]
+
+        # 将每个元素添加到对应的桶中
+        for num in nums:
+            index = (num - min_value) // n
+            buckets[index].append(num)
+
+        # 在桶内排序，后合并
+        sort_buckets = []
+        for bucket in buckets:
+            sort_buckets.extend(sorted(bucket))  # 可以用其它排序算法替换
+
+        return sort_buckets
+
+
+lists = [1, 4, 22, 7, 15, 6, 33, 8]
 sort = SortAlgorithm()
 # print(sort.merge_sort(lists))
 # print(sort.quick_sort(lists))
 # print(sort.bubble_sort(lists))
 # print(sort.select_sort(lists))
-print(sort.insert_sort(lists))
+# print(sort.insert_sort(lists))
+# print(sort.heap_sort(lists))
+print(sort.bucket_sort(lists))
 
 
 
