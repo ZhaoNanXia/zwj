@@ -39,7 +39,7 @@ class Task(nn.Module):
 
 
 class MMoE(nn.Module):
-    def __init__(self, input_dim, expert_dim, num_experts, num_tasks):
+    def __init__(self, input_dim, expert_dim, num_experts, num_tasks, num_gates):
         super(MMoE, self).__init__()
 
         self.experts = nn.ModuleList(
@@ -47,7 +47,7 @@ class MMoE(nn.Module):
         )
 
         self.gates = nn.ModuleList(
-            [Gate(input_dim, num_experts) for _ in range(num_tasks)]
+            [Gate(input_dim, num_experts) for _ in range(num_gates)]
         )
 
         self.task_layers = nn.ModuleList(
@@ -86,7 +86,7 @@ class MMoE(nn.Module):
         return final_outputs
 
 
-input_data = torch.randn(1, 4)
-model = MMoE(input_dim=4, expert_dim=4, num_experts=3, num_tasks=1)
+input_data = torch.randn(2, 4)
+model = MMoE(input_dim=4, expert_dim=8, num_experts=3, num_tasks=3, num_gates=3)
 output = model(input_data)
 print(f'final_output: {output}')
