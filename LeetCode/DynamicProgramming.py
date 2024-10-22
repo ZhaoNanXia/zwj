@@ -75,3 +75,70 @@ def find_max_form(strs, m, n):
 # x = 5
 # y = 3
 # print(find_max_form(s, x, y))
+
+"""---------------------------------------"""
+
+
+def coin_change(coins, amount):
+    """ 322.零钱兑换：多重背包问题，硬币是物品，金额为背包"""
+    dp = [float('inf')] * (amount + 1)  # dp数组：凑成金额i所需的最少硬币数量
+    dp[0] = 0  # 凑成金额0可以不选择任何硬币
+    for coin in coins:
+        for i in range(coin, amount + 1):
+            dp[i] = min(dp[i], dp[i - coin] + 1)
+    return dp[amount] if dp[amount] != float('inf') else -1
+
+
+# lists = [12]
+# t = 11
+# print(coin_change(lists, t))
+
+def combination_sum4(nums, target):
+    """ 377.组合总和Ⅳ：多重背包问题，元素是物品，和为背包"""
+    dp = [0] * (target + 1)  # dp数组：组成和为i的正整数的组合数量
+    dp[0] = 1  # 组成和为0的数可以不选择任何元素，即有一种组合方式
+    for i in range(1, target + 1):
+        for num in nums:
+            if i >= num:  # 如果num小于i,则num无法形成i，无需更新
+                dp[i] += dp[i - num]
+        print(dp)
+    return dp[target]
+
+
+# lists = [1, 2, 3]
+# t = 4
+# print(combination_sum4(lists, t))
+
+
+def num_squares(n):
+    """ 279.完全平方数：多重背包问题，完全平方数是物品，和n是背包容量"""
+    dp = [float('inf')] * (n + 1)
+    dp[0] = 0
+    for i in range(1, n + 1):
+        j = 1
+        while j * j <= i:
+            dp[i] = min(dp[i], dp[i - j * j] + 1)
+            j += 1
+    return dp[-1]
+
+
+# x = 12
+# print(num_squares(x))
+
+
+def word_break(s, word_dict):
+    """ 139.单词拆分: 多重背包问题，单词就是物品，字符串就是背包"""
+    n = len(s)
+    dp = [False] * (n + 1)  # 前i个字符是否能被单词组成
+    dp[0] = True
+    for i in range(1, n + 1):
+        for j in range(i):
+            if dp[j] and s[j: i] in word_dict:
+                dp[i] = True
+                break
+    return dp[n]
+
+
+x = "leetcode"
+wordDict = ["leet", "code"]
+print(word_break(x, wordDict))
