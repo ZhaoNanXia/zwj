@@ -1,3 +1,6 @@
+"""-------------------0-1背包问题--------------------"""
+
+
 def can_partition(nums):
     """ 416.分割等和子集：0-1背包问题 """
     total = sum(nums)
@@ -76,7 +79,7 @@ def find_max_form(strs, m, n):
 # y = 3
 # print(find_max_form(s, x, y))
 
-"""---------------------------------------"""
+"""-------------------多重背包问题--------------------"""
 
 
 def coin_change(coins, amount):
@@ -142,3 +145,5 @@ def word_break(s, word_dict):
 x = "leetcode"
 wordDict = ["leet", "code"]
 print(word_break(x, wordDict))
+
+
