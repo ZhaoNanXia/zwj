@@ -137,6 +137,9 @@ def reverse_list(head):
     return prev_node
 
 
-linklist = [1, 2, 3, 4, 5]
-res = reverse_list(LinkList.array_to_linked_list(linklist))
-print(LinkList.linked_list_to_array(res))
+# linklist = [1, 2, 3, 4, 5]
+# res = reverse_list(LinkList.array_to_linked_list(linklist))
+# print(LinkList.linked_list_to_array(res))
+
+
+

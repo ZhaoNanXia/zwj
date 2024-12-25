@@ -144,8 +144,8 @@ def word_break(s, word_dict):
     return dp[n]
 
 
-x = "leetcode"
-wordDict = ["leet", "code"]
+# x = "leetcode"
+# wordDict = ["leet", "code"]
 # print(word_break(x, wordDict))
 
 
@@ -195,7 +195,7 @@ class RobProblem:
 
 
 RP = RobProblem()
-lists = [1, 2, 3, 4]
+# lists = [1, 2, 3, 4]
 # print(RP.rob(lists))
 # print(RP.rob_1(lists))
 
@@ -318,4 +318,202 @@ class SubSequenceProblem:
     """ 子序列问题 """
     @staticmethod
     def length_of_lis(nums):
-        """ 300.最长递增子序列 """
+        """ 300.最长递增子序列：单调栈解法 """
+        n = len(nums)
+        stack = [nums[0]]
+        for i in range(1, n):
+            if nums[i] > stack[-1]:
+                stack.append(nums[i])
+            else:
+                left, right, loc = 0, len(stack) - 1, 0
+                while left <= right:
+                    mid = (left + right) // 2
+                    if stack[mid] >= nums[i]:
+                        loc = mid
+                        right = mid - 1
+                    else:
+                        left = mid + 1
+                stack[loc] = nums[i]
+            print(stack)
+        return len(stack)
+
+    @staticmethod
+    def length_of_lis_1(nums):
+        """ 300.最长递增子序列：动态规划解法 """
+        n = len(nums)
+        dp = [1] * n
+        for i in range(1, n):
+            for j in range(i):
+                if nums[i] > nums[j]:
+                    dp[i] = max(dp[i], dp[j] + 1)
+
+        return dp[-1]
+
+    @staticmethod
+    def find_length_of_lis(nums):
+        """ 674.最长连续递增序列 """
+        n = len(nums)
+        dp = [1] * n
+        for i in range(1, n):
+            if nums[i] > nums[i - 1]:
+                dp[i] = max(dp[i], dp[i - 1] + 1)
+        return max(dp)
+
+    @staticmethod
+    def find_length(nums1, nums2):
+        """ 718.最长重复子数组 """
+        n1, n2 = len(nums1), len(nums2)
+        # nums1的前i个数字组成的子数组 与 nums2的前j个数字组成的子数组 的最长重复子数组的长度
+        # 需要注意：前i,j个数字，对应到数组当中就是以索引i-1、j-1结尾的子数组
+        dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+        max_length = 0
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                if nums1[i - 1] == nums2[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1] + 1
+                    max_length = max(max_length, dp[i][j])
+        return max_length
+
+    @staticmethod
+    def longest_common_subsequence(text1, text2):
+        """ 1143. 最长公共子序列 """
+        n1, n2 = len(text1), len(text2)
+        dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                if text1[i - 1] == text2[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1] + 1
+                else:
+                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+
+        return dp[-1][-1]
+
+    @staticmethod
+    def max_subarray(nums):
+        """ 53.最大子数组和 """
+        n = len(nums)
+        for i in range(1, n):
+            nums[i] = max(nums[i], nums[i - 1] + nums[i])
+        return max(nums)
+
+    @staticmethod
+    def is_subsequence(s, t):
+        """ 392.判断子序列：动态规划解法 """
+        n1, n2 = len(s), len(t)
+        # s的前i个字符 与 t的前j个字符 所匹配的字符数量
+        # 如果两个字符串从前往后所匹配的字符数量恰好等于字符串s的长度则说明s是t的子序列
+        dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                if s[i - 1] == t[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1] + 1  # 两个字符相等情况下，匹配数量+1
+                else:
+                    dp[i][j] = dp[i][j - 1]  # 两个字符不相等情况下忽略t的第j个字符
+        return dp[-1][-1] == n1
+
+    @staticmethod
+    def is_subsequence_1(s, t):
+        """ 392.判断子序列：双指针解法 """
+        n1, n2 = len(s), len(t)
+        i = j = 0
+        while i < n1 and j < n2:
+            if s[i] == t[j]:
+                i += 1
+            j += 1
+        return i == n1
+
+    @staticmethod
+    def num_distinct(s, t):
+        """ 115.不同的子序列：只能对字符串s进行删除操作 """
+        n1, n2 = len(s), len(t)
+        if n1 < n2:
+            return 0
+        # t的前j个字符在s的前i个字符中出现的次数
+        dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+        for i in range(n1 + 1):
+            dp[i][0] = 1  # 初始化：空字符串始终是一个s的子序列
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                if s[i - 1] == t[j - 1]:
+                    # 如果两个字符相等，则t的前j个字符在s的前i个字符中出现的次数=
+                    # t的前j-1个字符在s的前i-1个字符中出现的次数+t的前j个字符在s的前i-1个字符中出现的次数
+                    dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j]
+                else:
+                    # 如果两个字符不相等，则t的前j个字符在s的前i个字符中出现的次数=t的前j个字符在s的前i-1个字符中出现的次数
+                    # 忽略掉s的第i个字符
+                    dp[i][j] = dp[i - 1][j]
+        return dp[-1][-1]
+
+    @staticmethod
+    def min_distance(word1, word2):
+        """ 583.两个字符串的删除操作：只能对两个字符串进行删除操作 """
+        n1, n2 = len(word1), len(word2)
+        # 使word1的前i个字符 与 word2的前j个字符相同 所需的最少步数
+        dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+        # 初始化：使word1的前i个字符 与 空字符串相同 所需的步数
+        for i in range(n1 + 1):
+            dp[i][0] = i
+        # 初始化：使word2的前j个字符 与 空字符串相同 所需的步数
+        for j in range(n2 + 1):
+            dp[0][j] = j
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                if word1[i - 1] == word2[j - 1]:
+                    # 如果当前字符相等，则与不需要两个字符的情况等同
+                    dp[i][j] = dp[i - 1][j - 1]
+                else:
+                    # 如果当前字符不相等，则可以删除掉word1的第i个字符或者删除掉word2的第j个字符
+                    dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + 1
+        return dp[-1][-1]
+
+    @staticmethod
+    def min_distance_1(word1, word2):
+        """ 72.编辑距离：可以删除、插入、替换 """
+        n1, n2 = len(word1), len(word2)
+        # 使word1的前i个字符 转换成 word2的前j个字符 所需的最少步数
+        dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+        # 初始化：使word1的前i个字符 转换成 空字符串相同 所需的步数
+        for i in range(n1 + 1):
+            dp[i][0] = i
+        # 初始化：使word2的前j个字符 转换成 空字符串相同 所需的步数
+        for j in range(n2 + 1):
+            dp[0][j] = j
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                if word1[i - 1] == word2[j - 1]:
+                    # 如果当前字符相等，则与不需要两个字符的情况等同
+                    dp[i][j] = dp[i - 1][j - 1]
+                else:
+                    # 如果当前字符不相等，则可以删除掉word1的第i个字符或者删除掉word2的第j个字符、
+                    # 可以对其中一个字符进行替换操作获插入一个相等的字符
+                    dp[i][j] = min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]) + 1
+        return dp[-1][-1]
+
+
+SSP = SubSequenceProblem()
+# lists = [10, 9, 2, 5, 3, 7, 101, 18]
+# lists = [0, 1, 0, 3, 2, 3]
+# print(SSP.length_of_lis(lists))
+# print(SSP.length_of_lis_1(lists))
+# lists = [1, 3, 5, 4, 7]
+# print(SSP.find_length_of_lis(lists))
+# lists1 = [1, 2, 3, 2, 1]
+# lists2 = [3, 2, 1, 4, 7]
+# print(SSP.find_length(lists1, lists2))
+# t1 = 'abcde'
+# t2 = 'ace'
+# print(SSP.longest_common_subsequence(t1, t2))
+# lists = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+# print(SSP.max_subarray(lists))
+# s = 'abc'
+# t = 'ahbgdc'
+# print(SSP.is_subsequence_1(s, t))
+# s = 'rabbbit'
+# t = 'rabbit'
+# print(SSP.num_distinct(s, t))
+# word1 = "leetcode"
+# word2 = "etco"
+# print(SSP.min_distance(word1, word2))
+word1 = "horse"
+word2 = "ros"
+print(SSP.min_distance_1(word1, word2))

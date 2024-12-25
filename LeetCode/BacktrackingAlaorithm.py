@@ -8,11 +8,12 @@
 """
 
 """
-def problem():
+def problem(输入):
     path = []  # 存储遍历过程中满足条件的子结果
     res = []  # 存储最终输出的结果
+    元素使用状态数组/集合 = len(输入) * [False] / set() # 根据需要决定是否要初始化一个元素使用状态标记数组或集合
     
-    def backtrack(当前状态参数):  # 根据问题定义
+    def backtrack(当前状态参数):  # 根据问题定义，如需要或者不需要start_index参数
         if 终止条件:  # 找到一个符合条件的解或者遍历完所有分支
             将满足条件的子结果path添加入最终结果res中
             return
@@ -23,7 +24,8 @@ def problem():
                 path.append(选择)  # 将遍历过程中满足条件的选择加入到子结果中
                 backtrack()  # 递归调用，进入下一层
                 path.pop()  # 回溯，撤销当前选择，尝试其它选择
-            
+                
+    输入.sort()(可选)  # 根据问题决定是否需要通过排序来去重   
     backtrack(初始状态)
     return res  # 返回最终结果
 """
@@ -33,53 +35,82 @@ class CombinationProblem:
     """ 组合问题 """
     @staticmethod
     def combine(n, k):
-        """ 77. 组合 """
+        """ 77.组合 """
         res = []
         path = []
 
         def backtrack(start_index, n, k):
+            # 终止条件：
             if len(path) == k:
                 res.append(path[:])
+                print(f'得到一个组合->path: {path}, res: {res}')
+                print('-' * 100)
                 return
             # 优化：当剩余元素个数不足我们需要的元素时停止
             # (start_index, n - (k - len(path)) + 2)
             # k - len(path)：我们还需要的元素数量
-            # 遍历到下标i时列表中剩余的元素为：n-i
-            # 想要继续遍历，则必须使n-i>= k - len(path) ——> i <= n - (k - len(path))
-            # 则遍历的结束位置要为n - (k - len(path)) + 1，但是因为起始位置是1，所以末尾还要+1，即n - (k - len(path)) + 2
+            # 遍历到下标i时列表中剩余的元素为：n+1-i
+            # 想要继续遍历，则必须使n+1-i>= k - len(path) ——> i <= n - (k - len(path))+1
+            # 则函数遍历的结束位置要写为n - (k - len(path)) + 2
             for i in range(start_index, n - (k - len(path)) + 2):
                 path.append(i)
+                print(f'递归过程->path: {path}')
                 backtrack(i + 1, n, k)
                 path.pop()
+                print(f'回溯过程->path: {path}')
 
         backtrack(1, n, k)
+        print('-' * 100)
+        print(f'输出结果res：{res}')
         return res
 
     @staticmethod
     def combination_sum3(k, n):
-        """ 216. 组合总和 III """
+        """ 216. 组合总和III """
         res = []
         path = []
 
         def backtrack(start_index, k, n, sum_path):
             if sum_path > n:
+                print(f'当前总和 {sum_path} 大于目标总和 {n} ->path: {path}')
+                print('-' * 50)
                 return
             if len(path) == k:
                 if sum_path == n:
                     res.append(path[:])
+                    print(f'得到一个组合->path: {path}, res: {res}')
+                    print('-' * 50)
                     return
             for i in range(start_index, 9 - (k - len(path)) + 2):
                 path.append(i)
+                print(f'递归过程->path: {path}')
                 backtrack(i + 1, k, n, sum_path + i)  # 将求和作为递归参数之一
                 path.pop()
+                print(f'回溯过程->path: {path}')
 
         backtrack(1, k, n, 0)
+        print('-' * 50)
+        print(f'输出结果res：{res}')
         return res
 
 
-# CP = CombinationProblem()
-# # print(CP.combine(4, 2))
+CP = CombinationProblem()
+# print(CP.combine(4, 2))
 # print(CP.combination_sum3(3, 7))
+"""
+示例 1：
+
+输入：n = 4, k = 2
+输出：
+[
+  [2,4],
+  [3,4],
+  [2,3],
+  [1,2],
+  [1,3],
+  [1,4],
+]
+"""
 
 
 class PartitionProblem:
@@ -187,38 +218,47 @@ class PartitionProblem:
 
 
 PP = PartitionProblem()
-c = "aab"
-print(f'最终输出结果res：{PP.partition(c)}')
-c = "11023"
-print(f'最终输出结果res：{PP.restore_ip_addresses(c)}')
+# c = "aab"
+# print(f'最终输出结果res：{PP.partition(c)}')
+# c = "11023"
+# print(f'最终输出结果res：{PP.restore_ip_addresses(c)}')
 
 
 class PermuteProblem:
     """
-    排列问题
-    每次都是从头开始搜索，不需要start_index参数
+    排列问题: 每次都是从头开始搜索，不需要start_index参数
     """
     @staticmethod
     def permute(nums):
         """ 46.全排列 """
         path = []
         res = []
-        num_used = [False] * len(nums)
+        num_used = [False] * len(nums)  # 记录每个位置元素的使用情况
 
         def backtrack(nums):
+            # 终止条件：每一个全排列的长度肯定都是等于数组长度的
             if len(path) == len(nums):
                 res.append(path[:])
+                print(f'得到一个全排列->path: {path}, res: {res}')
+                print('-' * 100)
                 return
-
+            # 每次都从头开始遍历
             for i in range(len(nums)):
+                # 确保对应位置的元素未被使用过，否则元素会被重复使用，使最终结果中出现重复的全排列
                 if not num_used[i]:
-                    num_used[i] = True
+                    num_used[i] = True  # 标记该元素已被使用
                     path.append(nums[i])
-                    backtrack(nums)
-                    path.pop()
-                    num_used[i] = False
+                    print(f'递归过程->path: {path}, num_used: {num_used}')
+                    backtrack(nums)  # 递归
+                    path.pop()  # 回溯
+                    num_used[i] = False  # 撤回该元素的使用
+                    print(f'回溯过程->path: {path}, num_used: {num_used}')
 
+        print(f'输入数组nums：{nums}')
+        print('-' * 100)
         backtrack(nums)
+        print('-' * 100)
+        print(f'输出结果res：{res}')
         return res
 
     @staticmethod
@@ -226,26 +266,38 @@ class PermuteProblem:
         """ 47.全排列Ⅱ """
         path = []
         res = []
-        num_used = [False] * len(nums)
+        num_used = [False] * len(nums)  # 记录每个位置元素的使用情况
 
         def backtrack(nums):
+            # 终止条件：每一个全排列的长度肯定都是等于数组长度的
             if len(path) == len(nums):
                 res.append(path[:])
+                print(f'得到一个全排列->path: {path}, res: {res}')
+                print('-' * 100)
                 return
-
             for i in range(len(nums)):
+                # 剪枝条件1：如果该元素已经使用过，则跳过
                 if num_used[i]:
                     continue
+                # 剪枝条件2：如果该元素与前一个元素相等且前一个元素使用过，则跳过
                 if i > 0 and nums[i] == nums[i - 1] and num_used[i - 1]:
                     continue
-                num_used[i] = True
                 path.append(nums[i])
-                backtrack(nums)
-                path.pop()
-                num_used[i] = False
+                num_used[i] = True  # 标记该元素已被使用
+                print(f'递归过程->path: {path}, num_used: {num_used}')
+                backtrack(nums)  # 递归
+                path.pop()  # 回溯
+                num_used[i] = False  # 撤回该元素的使用
+                print(f'回溯过程->path: {path}, num_used: {num_used}')
 
+        # 必须先排序：因为输入当中含有重复元素，需要确保在一个全排列中不能有重复元素，
+        # 那么使重复元素相邻排列相对于最后一步对结果去重来说是最易于实现的。
         nums.sort()
+        print(f'排序后的输入数组nums：{nums}')
+        print('-' * 100)
         backtrack(nums)
+        print('-' * 100)
+        print(f'输出结果res：{res}')
         return res
 
 
@@ -253,6 +305,12 @@ PEP = PermuteProblem()
 # lists = [1, 1, 3]
 # print(PEP.permute(lists))
 # print(PEP.permute_unique(lists))
+
+"""
+示例
+输入：nums = [1,1,2]
+输出：[[1,1,2], [1,2,1], [2,1,1]]
+"""
 
 
 class SubsetProblem:
@@ -265,12 +323,20 @@ class SubsetProblem:
 
         def backtrack(nums, start_index):
             res.append(path[:])
+            print(f'得到一个子集->path: {path}, res: {res}')
+            print('-' * 100)
             for i in range(start_index, len(nums)):
                 path.append(nums[i])
+                print(f'递归过程->path: {path}')
                 backtrack(nums, i + 1)
                 path.pop()
+                print(f'回溯过程->path: {path}')
 
+        print(f'输入数组nums：{nums}')
+        print('-' * 100)
         backtrack(nums, 0)
+        print('-' * 100)
+        print(f'输出结果res：{res}')
         return res
 
     @staticmethod
@@ -281,15 +347,27 @@ class SubsetProblem:
 
         def backtrack(nums, start_index):
             res.append(path[:])
+            print(f'得到一个子集->path: {path}, res: {res}')
+            print('-' * 100)
             for i in range(start_index, len(nums)):
                 if i > start_index and nums[i] == nums[i - 1]:
+                    print(f'遇到重复元素{nums[i]}->path: {path}, res: {res}')
+                    print('-' * 100)
                     continue
                 path.append(nums[i])
+                print(f'递归过程->path: {path}')
                 backtrack(nums, i + 1)
                 path.pop()
+                print(f'回溯过程->path: {path}')
 
+        print(f'输入数组nums：{nums}')
+        print('-' * 100)
         nums.sort()
+        print(f'排序后的输入数组nums：{nums}')
+        print('-' * 100)
         backtrack(nums, 0)
+        print('-' * 100)
+        print(f'输出结果res：{res}')
         return res
 
     @staticmethod
@@ -317,7 +395,7 @@ class SubsetProblem:
 
 
 SP = SubsetProblem()
-lists = [4, 6, 7, 7]
+# lists = [1, 3, 1]
 # print(SP.subsets(lists))
 # print(SP.subsets_unique(lists))
 # print(SP.find_sub_sequences(lists))

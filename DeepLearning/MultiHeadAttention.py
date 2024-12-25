@@ -27,7 +27,7 @@ class MultiHeadAttention(nn.Module):
         # [b, num_heads, n, head_dim]
         attn_score = torch.matmul(q, k.transpose(3, 2)) * self.scale
         # [b, num_heads, n, head_dim] * [b, num_heads, head_dim, n] ——> [b, num_heads, n, n]
-        attn_score = attn_score.softmax(dim=-1)
+        attn_score = attn_score.softmax(dim=1)
         print('attn_score.shape:', attn_score.shape)
 
         attn_weight = torch.matmul(attn_score, v).transpose(1, 2).reshape(batch_size, num_token, dim_in)

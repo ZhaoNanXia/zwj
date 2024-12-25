@@ -1,7 +1,6 @@
 import collections
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.interpolate import interp1d
 
 
 def auc(scores, labels):
@@ -86,7 +85,7 @@ for label in ax.get_yticklabels():
 plt.legend(loc="upper left", prop=font1)
 plt.grid(alpha=0.3)
 
-plt.savefig(r'D:\南夏的算法驿站\推荐系统\ROC曲线示意图_1.png', dpi=600, bbox_inches='tight')
+# plt.savefig(r'D:\南夏的算法驿站\推荐系统\ROC曲线示意图_1.png', dpi=600, bbox_inches='tight')
 
 plt.show()
 
